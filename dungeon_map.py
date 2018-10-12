@@ -1,0 +1,2 @@
+class DungeonMap:
+    pass
