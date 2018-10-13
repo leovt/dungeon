@@ -13,16 +13,28 @@ vertex_coords = {
     for tid, (x,y) in tiles.items()
 }
 
+import random
+def gen_map():
+    map = [['1']*40 for y in range(40)]
+    for r in range(20):
+        w = random.randrange(3, 12)
+        h = random.randrange(3, 12)
+        x = random.randrange(1,39-w)
+        y = random.randrange(1,39-h)
+        if all(map[u][v] == '1' for u in range(x-1, x+w+1) for v in range(y-1, y+h+1)):
+             for u in range(x, x+w):
+                 for v in range(y, y+h):
+                     map[u][v] = '3'
+    return map
+
+
 
 class DungeonMap:
+    def __init__(self):
+        self.map = gen_map()
+
     def vertex_data(self):
-        map = ['111111',
-               '133331',
-               '133131',
-               '111131',
-               '133331',
-               '111111'][::-1]
-        for y, row in enumerate(map):
+        for y, row in enumerate(self.map):
             for x, tid in enumerate(row):
                 for tu, tv, u, v in vertex_coords[tid]:
                     yield from (x+u, y+v, 0, 1, tu, tv, 0, 0)

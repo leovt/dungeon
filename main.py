@@ -39,6 +39,7 @@ class Application:
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     def on_resize(self, width, height):
+        logging.debug('window resized to %sx%s', width, height)
         gl.glViewport(0, 0, width, height)
         TILE_SIZE = 64
         self.program.uniform2f(b'scale', 2*TILE_SIZE/width, 2*TILE_SIZE/height)
@@ -54,7 +55,7 @@ class Application:
         self.program.vertex_attrib_pointer(self.buffer, b'position', 4, stride=STRIDE * ctypes.sizeof(gl.GLfloat))
         self.program.vertex_attrib_pointer(self.buffer, b'tex_coord', 4, stride=STRIDE * ctypes.sizeof(gl.GLfloat), offset=4 * ctypes.sizeof(gl.GLfloat))
 
-        nb_vertices = 6*6*6
+        nb_vertices = 6*40*40
         data = self.dungeon_map.vertex_data()
         data = (gl.GLfloat * (STRIDE * nb_vertices))(*data)
         gl.glBufferData(gl.GL_ARRAY_BUFFER, ctypes.sizeof(data), data, gl.GL_DYNAMIC_DRAW)
@@ -71,6 +72,12 @@ def initialize_gl(context):
 
 def main():
     logging.config.fileConfig('logging.conf')
+    try:
+        if not ctypes.windll.user32.SetProcessDPIAware():
+            logging.error('could not set dpi awareness')
+    except AttributeError:
+        pass
+
     try:
         window = pyglet.window.Window(resizable=True)
         initialize_gl(window.context)
