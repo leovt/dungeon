@@ -25,7 +25,6 @@ class Application:
     def initialize_gl(self):
         self.program = GlProgram(shaders.vertex_sprite, shaders.fragment_sprite)
         self.program.uniform2f(b'offset', 0, 0)
-        self.program.uniform2f(b'scale', 30, 20)
 
         self.buffer = gl.GLuint(0)
         gl.glGenBuffers(1, ctypes.pointer(self.buffer))
@@ -41,8 +40,8 @@ class Application:
 
     def on_resize(self, width, height):
         gl.glViewport(0, 0, width, height)
-        TILE_SIZE = 40
-        self.program.uniform2f(b'scale', width/TILE_SIZE*0.5, height/TILE_SIZE*0.5)
+        TILE_SIZE = 64
+        self.program.uniform2f(b'scale', 2*TILE_SIZE/width, 2*TILE_SIZE/height)
         self.vp_width = width
         self.vp_height = height
 
@@ -55,10 +54,9 @@ class Application:
         self.program.vertex_attrib_pointer(self.buffer, b'position', 4, stride=STRIDE * ctypes.sizeof(gl.GLfloat))
         self.program.vertex_attrib_pointer(self.buffer, b'tex_coord', 4, stride=STRIDE * ctypes.sizeof(gl.GLfloat), offset=4 * ctypes.sizeof(gl.GLfloat))
 
-        nb_vertices = 0
-        data = []
+        nb_vertices = 6*6*6
+        data = self.dungeon_map.vertex_data()
         data = (gl.GLfloat * (STRIDE * nb_vertices))(*data)
-
         gl.glBufferData(gl.GL_ARRAY_BUFFER, ctypes.sizeof(data), data, gl.GL_DYNAMIC_DRAW)
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, nb_vertices)
 
